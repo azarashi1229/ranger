@@ -1,3 +1,6 @@
+# test_thatというRでテストコードを簡単に実装できるパッケージ。
+# https://zenn.dev/masayukeeeee/articles/dd245bfd2f68b5
+
 library(ranger)
 context("ranger_betasplit")
 

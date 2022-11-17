@@ -26,11 +26,19 @@ class Data {
 public:
   Data();
 
+  //deleteはnewされた後のメモリ解放のおまじない
   Data(const Data&) = delete;
+  //コピーコンストラクタ
+  //自クラス型への参照を実引数にもつコンストラクタ
+  //https://monozukuri-c.com/langcpp-copyconstructor/
   Data& operator=(const Data&) = delete;
+
 
   virtual ~Data() = default;
 
+  //Virtualは仮想関数。
+  //仮想関数は継承したクラスで挙動を書き換えられる関数。
+  //Virtualを見つけたら書き換えられそうという認識をもつ
   virtual double get_x(size_t row, size_t col) const = 0;
   virtual double get_y(size_t row, size_t col) const = 0;
 
