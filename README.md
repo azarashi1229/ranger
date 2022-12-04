@@ -78,3 +78,23 @@ Please cite our paper if you use ranger.
 * Meinshausen (2006). Quantile Regression Forests. J Mach Learn Res 7:983-999. http://www.jmlr.org/papers/v7/meinshausen06a.html.
 * Sandri, M. & Zuccolotto, P. (2008). A bias correction algorithm for the Gini variable importance measure in classification trees. J Comput Graph Stat, 17:611-628. https://doi.org/10.1198/106186008X344522.
 * Coppersmith D., Hong S. J., Hosking J. R. (1999). Partitioning nominal attributes in decision trees. Data Min Knowl Discov 3:197-217. https://doi.org/10.1023/A:1009869804967.
+
+
+
+
+# 嶽追記
+sobolMDAの実装
+https://gitlab.com/drti/sobolmda
+
+
+ランダムフォレストにおける学習の方法として、次のようなものがあります。
+
+トレーニングデータセット全体を用いる方法
+ブートストラップサンプリングを用いる方法
+out-of-bag procedureを用いる方法
+また、ランダムフォレストは、決定木を組み合わせる際に、次のような手法があります。
+
+ブートストラップサンプリングを用いた場合には、各決定木を独立して学習する方法
+ブートストラップサンプリングを用いた場合には、各決定木で利用する特徴量をランダムに選択する方法
+ブートストラップサンプリングを用いた場合には、各決定木で利用するサンプルをランダムに選択する方法
+どのような手法を用いるかによって、ランダムフォレストの学習結果が異なります。
