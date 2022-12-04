@@ -484,6 +484,7 @@ std::vector<double> adjustPvalues(std::vector<double>& unadjusted_pvalues);
 
 /**
  * Get indices of sorted values
+ * ソートされた値のインデックスを取得する
  * @param values Values to sort
  * @param decreasing Order decreasing
  * @return Indices of sorted values
@@ -504,7 +505,14 @@ std::vector<size_t> order(const std::vector<T>& values, bool decreasing) {
 }
 
 /**
- * Sample ranks starting from 1. Ties are given the average rank.
+ * Sample ranks starting from 1. Ties are given the average rank
+ * 1 から始まるサンプル ランク。同順位には平均ランクが与えられます。
+ * 特定の関数を使用することで、配列の要素を1から始まるランクに変換することができます。
+ * 1から始まるランクを使用することには、次のようなメリットがあります。
+
+ランクが1から始まることで、ランクを比較する際に、1以上の値として扱う必要がありません。例えば、1位と2位との比較については、2 - 1 = 1と表すことができます。
+ランクが1から始まることで、標本のサイズが変わっても、ランクの意味を変えることがありません。例えば、標本サイズが100から200に増えた場合、100位から200位までのランクが増えますが、そのランクの意味は変わりません。
+上記のように、1から始まるランクを使用することで、ランクの比較やランクの意味を定義する際に、簡単かつ一貫性がある方法で扱うことができます。
  * @param values Values to rank
  * @return Ranks of input values
  */
@@ -536,12 +544,27 @@ std::vector<double> rank(const std::vector<T>& values) {
 
 /**
  * Compute Logrank scores for survival times
+ * 生存時間の Logrank スコアを計算する
+ * Logrankスコアは、生存時間の検定において、群間の差があるかどうかを検定するために使われる統計量です。Logrankスコアを計算するには、以下の手順を実行します。
+ * ログランク検定
+ * https://toukeier.hatenablog.com/entry/logrank-test-step-by-step-in-EZR
+ *
+生存時間のデータを収集し、それぞれの群に属するかどうかを指定します。
+生存時間のデータを昇順に並べ替えます。
+各観測期間において、その群内の生存数をカウントします。
+各観測期間において、群間の生存数の差を計算します。この値をLogrankスコアとします。
+各観測期間におけるLogrankスコアの合計を計算します。この値が、群間の差があるかどうかを示す統計量として使用されます。
+上記のように、Logrankスコアを計算する際には、生存時間のデータを収集し、それを昇順に並べ替え、群間の生存数の差を計算することが必要です。これらの手順を実行することで、Logrankスコアを求めることができます。
  * @param time Survival time
  * @param status Censoring indicator
  * @return Logrank scores
  */
 std::vector<double> logrankScores(const std::vector<double>& time, const std::vector<double>& status);
 
+//    カプランマイヤー曲線とは、生存曲線のモデルの一種です。
+//    生存曲線とは、ある疾患を持つ患者の、治療を受けていない場合の生存率を時間に対する関数として表したものです。
+//    カプランマイヤー曲線は、生存曲線において、治療を受けた場合と治療を受けない場合の生存率を比較する際に使用されます。
+//    カプランマイヤー曲線は、治療を受けた場合の生存率が治療を受けない場合の生存率よりも高いことを示すとき、治療が有効であるとみなされます。
 /**
  * Compute maximally selected rank statistics
  * @param scores Scores for dependent variable (y)
@@ -557,6 +580,9 @@ void maxstat(const std::vector<double>& scores, const std::vector<double>& x, co
 
 /**
  * Compute number of samples smaller or equal than each unique value in x
+ * x の各一意の値より小さいか等しいサンプルの数を計算します
+ * 、各ユニークな値以下のサンプル数を求めることができます。
+
  * @param x Value vector
  * @param indices Ordering of x
  * @return Vector of number of samples smaller or equal than each unique value in x
@@ -565,7 +591,37 @@ std::vector<size_t> numSamplesLeftOfCutpoint(std::vector<double>& x, const std::
 
 /**
  * Read from stringstream and ignore failbit for subnormal numbers
+ * stringstream から読み取り、非正規数の failbit を無視する
  * See: https://bugs.llvm.org/show_bug.cgi?id=39012
+ * 文字列ストリームからデータを読み込み、サブノーマル数が発生した場合に、その情報を無視するには、以下のようにして行うことができます。
+#include <iostream>
+#include <sstream>
+#include <limits>
+
+// 文字列ストリームから浮動小数点数を読み込む
+double read_double_from_stringstream(const std::string &str)
+{
+    // 文字列ストリームを作成
+    std::stringstream ss(str);
+
+    // 浮動小数点数を読み込む
+    double value;
+    ss >> value;
+
+    // 読み込みに失敗した場合は、無視する
+    if (ss.fail() && !ss.eof()) {
+        ss.clear(std::stringstream::goodbit);
+    }
+
+    // 読み込んだ値を返す
+    return value;
+}
+
+int main()
+{
+    // 文字列ストリームから浮動小数点数を読み込む
+    std::cout << read_double_from_stringstream("3.14") << std::endl;   // 出力: 3.14
+    std::cout << read_double_from_string
  * @param in Input string stream
  * @param token Output token
  * @return Input string stream with removed failbit if subnormal number
@@ -574,6 +630,21 @@ std::stringstream& readFromStream(std::stringstream& in, double& token);
 
 /**
  * Compute log-likelihood of beta distribution
+ * ベータ分布の対数尤度を計算する
+ * ベータ分布の対数尤度を求めるデータを収集します。このデータは、0から1までの値を取る確率変数である必要があります。
+ベータ分布の対数尤度は、次の式で表されます。
+$$
+\log L(\alpha, \beta) = - \frac{1}{n} \left( \alpha \log \beta + \sum_{i=1}^n \log x_i + (\beta - 1) \sum_{i=1}^n \log (1 - x_i) \right)
+$$
+
+この式で、$\alpha$と$\beta$はベータ分布のパラメータ、$x_1, x_2, \dots, x_n$はベータ分布の対数尤度を求める
+ ベータ分布とは、確率分布の一種です。ベータ分布は、0から1までの値を取る確率変数の分布を表すものとして使われます。ベータ分布は、与えられた2つのパラメータ$\alpha$と$\beta$によって定義されます。ベータ分布は、確率変数$x$について次の式で表されます。
+
+$$
+f(x) = \frac{x^{\alpha - 1} (1 - x)^{\beta - 1}}{B(\alpha, \beta)}
+$$
+
+この式で、$B(\alpha, \beta)$はベータ関数と呼ばれ、$\alpha$と$\beta$によって定義されます。ベータ分布は、多くの統計的な分析で使われる分布の一つであり、特に0から1までの値を取る確率変数の分布を表す際によく使用されます。
  * @param y Response
  * @param mean Mean
  * @param phi Phi
