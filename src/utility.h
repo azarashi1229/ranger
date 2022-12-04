@@ -35,6 +35,7 @@ namespace ranger {
 
 /**
  * Split sequence start..end in num_parts parts with sizes as equal as possible.
+ * シーケンスの start..end を num_parts 個の部分に分割し、サイズをできるだけ等しくします。
  * @param result Result vector of size num_parts+1. Ranges for the parts are then result[0]..result[1]-1, result[1]..result[2]-1, ..
  * @param start minimum value
  * @param end maximum value
@@ -45,16 +46,23 @@ void equalSplit(std::vector<uint>& result, uint start, uint end, uint num_parts)
 // #nocov start
 /**
  * Write a 1d vector to filestream. First the size is written as size_t, then all vector elements.
+ * 1d ベクトルを filestream に書き込みます。
+ * 最初にサイズが size_t として書き込まれ、次にすべてのベクトル要素が書き込まれます。
  * @param vector Vector with elements of type T to write to file.
  * @param file ofstream object to write to.
  */
 
 /**
  * Write a 1d vector to filestream. First the size is written, then all vector elements.
+ * 1d ベクトルを filestream に書き込みます。
+ * 最初にサイズが書き込まれ、次にすべてのベクトル要素が書き込まれます。
  * @param vector Vector of type T to save
  * @param file ofstream object to write to.
  */
 template<typename T>
+//templateはジェネリクスT。どんな型でも受け取れる関数
+//inline展開はパフォーマンス的な指定なので、一旦無視。
+//vectorはリストみたいなもの
 inline void saveVector1D(const std::vector<T>& vector, std::ofstream& file) {
   // Save length
   size_t length = vector.size();
@@ -62,6 +70,7 @@ inline void saveVector1D(const std::vector<T>& vector, std::ofstream& file) {
   file.write((char*) vector.data(), length * sizeof(T));
 }
 
+//boolのみが独立で定義？
 template<>
 inline void saveVector1D(const std::vector<bool>& vector, std::ofstream& file) {
   // Save length
@@ -77,6 +86,7 @@ inline void saveVector1D(const std::vector<bool>& vector, std::ofstream& file) {
 
 /**
  * Read a 1d vector written by saveVector1D() from filestream.
+ * filestream から saveVector1D() によって書き込まれた 1 次元ベクトルを読み取ります。
  * @param result Result vector with elements of type T.
  * @param file ifstream object to read from.
  */
@@ -89,6 +99,7 @@ inline void readVector1D(std::vector<T>& result, std::ifstream& file) {
   file.read((char*) result.data(), length * sizeof(T));
 }
 
+//boolのみが独立で定義？
 template<>
 inline void readVector1D(std::vector<bool>& result, std::ifstream& file) {
   // Read length
@@ -105,6 +116,8 @@ inline void readVector1D(std::vector<bool>& result, std::ifstream& file) {
 
 /**
  * Write a 2d vector to filestream. First the size of the first dim is written as size_t, then for all inner vectors the size and elements.
+ * 2 次元ベクトルをファイルストリームに書き込みます。
+ * まず、最初の次元のサイズが size_t として書き込まれ、次にすべての内部ベクトルのサイズと要素が書き込まれます。
  * @param vector Vector of vectors of type T to write to file.
  * @param file ofstream object to write to.
  */
@@ -123,6 +136,7 @@ inline void saveVector2D(const std::vector<std::vector<T>>& vector, std::ofstrea
 
 /**
  * Read a 2d vector written by saveVector2D() from filestream.
+ * filestream から saveVector2D() によって書き込まれた 2d ベクトルを読み取ります。
  * @param result Result vector of vectors with elements of type T.
  * @param file ifstream object to read from.
  */
@@ -142,6 +156,7 @@ inline void readVector2D(std::vector<std::vector<T>>& result, std::ifstream& fil
 
 /**
  * Read a double vector from text file. Reads only the first line.
+ * テキスト ファイルから double ベクトルを読み取ります。最初の行だけを読み取ります。
  * @param result Result vector of doubles with contents
  * @param filename filename of input file
  */
@@ -150,6 +165,7 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
 
 /**
  * Draw random numbers in a range without replacements.
+ * 置換なしで範囲内の乱数を描画します。
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param range_length Length of range. Interval to draw from: 0..max-1
@@ -160,6 +176,7 @@ void drawWithoutReplacement(std::vector<size_t>& result, std::mt19937_64& random
 
 /**
  * Draw random numbers in a range without replacement and skip values.
+ * 置換なしで範囲内の乱数を描画し、値をスキップします。
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param range_length Length of range. Interval to draw from: 0..max-1
@@ -171,6 +188,7 @@ void drawWithoutReplacementSkip(std::vector<size_t>& result, std::mt19937_64& ra
 
 /**
  * Simple algorithm for sampling without replacement, faster for smaller num_samples
+ * 置換なしでサンプリングするための単純なアルゴリズム、num_samples が小さいほど高速
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param range_length Length of range. Interval to draw from: 0..max-1
@@ -181,6 +199,7 @@ void drawWithoutReplacementSimple(std::vector<size_t>& result, std::mt19937_64& 
 
 /**
  * Simple algorithm for sampling without replacement (skip values), faster for smaller num_samples
+ * 置換なしのサンプリングのための単純なアルゴリズム (値をスキップ)、num_samples が小さいほど高速
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param range_length Length of range. Interval to draw from: 0..max-1
@@ -192,6 +211,10 @@ void drawWithoutReplacementSimple(std::vector<size_t>& result, std::mt19937_64& 
 
 /**
  * Fisher Yates algorithm for sampling without replacement.
+ * 置換なしのサンプリングのための Fisher Yates アルゴリズム。
+ * https://www.pandanoir.info/entry/2013/03/04/193704
+ * 世界最速の配列シャッフルアルゴリズム
+ * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param max Length of range. Interval to draw from: 0..max-1
@@ -202,6 +225,7 @@ void drawWithoutReplacementFisherYates(std::vector<size_t>& result, std::mt19937
 
 /**
  * Fisher Yates algorithm for sampling without replacement (skip values).
+ * 置換なしのサンプリングのための Fisher Yates アルゴリズム。スキップあり。
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param max Length of range. Interval to draw from: 0..max-1
@@ -213,6 +237,7 @@ void drawWithoutReplacementFisherYates(std::vector<size_t>& result, std::mt19937
 
 /**
  * Draw random numers without replacement and with weighted probabilites from 0..n-1.
+ * 置換なしで、0..n-1 の加重確率で乱数を描画します。
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param max_index Maximum index to draw
@@ -224,6 +249,7 @@ void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64
 
 /**
  * Draw random numbers of a vector without replacement.
+ * 置換なしでベクトルの乱数を描画します。
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param input Vector to draw values from.
  * @param random_number_generator Random number generator
@@ -247,6 +273,7 @@ void drawWithoutReplacementFromVector(std::vector<T>& result, const std::vector<
 
 /**
  * Returns the most frequent class index of a vector with counts for the classes. Returns a random class if counts are equal.
+ * クラスのカウントを持つベクトルの最も頻度の高いクラス インデックスを返します。カウントが等しい場合、ランダム クラスを返します。
  * @param class_count Vector with class counts
  * @param random_number_generator Random number generator
  * @return Most frequent class index. Out of range index if all 0.
@@ -281,6 +308,7 @@ size_t mostFrequentClass(const std::vector<T>& class_count, std::mt19937_64 rand
 
 /**
  * Returns the most frequent value of a map with counts for the values. Returns a random class if counts are equal.
+ * 値のカウントを含むマップの最も頻繁な値を返します。カウントが等しい場合、ランダム クラスを返します。
  * @param class_count Map with classes and counts
  * @param random_number_generator Random number generator
  * @return Most frequent value
@@ -290,6 +318,10 @@ double mostFrequentValue(const std::unordered_map<double, size_t>& class_count,
 
 /**
  * Compute concordance index for given data and summed cumulative hazard function/estimate
+ * 与えられたデータと合計された累積ハザード関数/推定値の一致指数を計算する
+ * https://necostat.hatenablog.jp/entry/2022/07/06/080239
+ * https://ai-trend.jp/basic-study/survival-data-analysis/survival-function/
+ * https://clover.fcg.world/2016/07/24/6112/
  * @param data Reference to Data object
  * @param sum_chf Summed chf over timepoints for each sample
  * @param sample_IDs IDs of samples, for example OOB samples
@@ -316,6 +348,7 @@ std::string beautifyTime(uint seconds);
 
 /**
  * Round up to next multiple of a number.
+ * 次の倍数に切り上げます。
  * @param value Value to be rounded up.
  * @param multiple Number to multiply.
  * @return Rounded number
@@ -340,6 +373,7 @@ void splitString(std::vector<double>& result, const std::string& input, char spl
 
 /**
  * Create numbers from 0 to n_all-1, shuffle and split in two parts.
+ * 0 から n_all-1 までの数字を作成し、シャッフルして 2 つの部分に分割します。
  * @param first_part First part
  * @param second_part Second part
  * @param n_all Number elements
@@ -351,6 +385,7 @@ void shuffleAndSplit(std::vector<size_t>& first_part, std::vector<size_t>& secon
 
 /**
  * Create numbers from 0 to n_all-1, shuffle and split in two parts. Append to existing data.
+ * 0 から n_all-1 までの数字を作成し、シャッフルして 2 つの部分に分割します。既存のデータに追加します。
  * @param first_part First part
  * @param second_part Second part
  * @param n_all Number elements
@@ -363,6 +398,7 @@ void shuffleAndSplitAppend(std::vector<size_t>& first_part, std::vector<size_t>&
 
 /**
  * Check if not too many factor levels and all values in unordered categorical variables are positive integers.
+ * 因子水準が多すぎず、順序付けされていないカテゴリ変数のすべての値が正の整数であるかどうかを確認します。
  * @param data Reference to data object
  * @param unordered_variable_names Names of unordered variables
  * @return Error message, empty if no problem occured
@@ -371,6 +407,7 @@ std::string checkUnorderedVariables(const Data& data, const std::vector<std::str
 
 /**
  * Check if all values in double vector are positive integers.
+ * double ベクトルのすべての値が正の整数かどうかを確認します。
  * @param all_values Double vector to check
  * @return True if all values are positive integers
  */
@@ -378,6 +415,7 @@ bool checkPositiveIntegers(const std::vector<double>& all_values);
 
 /**
  * Compute p-value for maximally selected rank statistics using Lau92 approximation
+ * Lau92 近似を使用して、最大に選択されたランク統計の p 値を計算します
  * See Lausen, B. & Schumacher, M. (1992). Biometrics 48, 73-85.
  * @param b Quantile
  * @param minprop Minimal proportion of observations left of cutpoint
@@ -388,6 +426,7 @@ double maxstatPValueLau92(double b, double minprop, double maxprop);
 
 /**
  * Compute p-value for maximally selected rank statistics using Lau94 approximation
+ * Lau94 近似を使用して、最大に選択されたランク統計の p 値を計算します
  * See Lausen, B., Sauerbrei, W. & Schumacher, M. (1994). Computational Statistics. 483-496.
  * @param b Quantile
  * @param minprop Minimal proportion of observations left of cutpoint
@@ -400,6 +439,9 @@ double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, co
 
 /**
  * Compute unadjusted p-value for rank statistics
+ * ランク統計の未調整の p 値を計算する
+ * ログランク？
+ * https://ja.wikipedia.org/wiki/%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%B3%E3%82%AF%E6%A4%9C%E5%AE%9A
  * @param b Quantile
  * @return p-value for quantile b
  */
@@ -407,6 +449,7 @@ double maxstatPValueUnadjusted(double b);
 
 /**
  * Standard normal density
+ * 標準正規分布の密度関数
  * @param x Quantile
  * @return Standard normal density at quantile x
  */
@@ -414,6 +457,7 @@ double dstdnorm(double x);
 
 /**
  * Standard normal distribution
+ * 標準正規分布
  * @param x Quantile
  * @return Standard normal distribution at quantile x
  */
@@ -421,10 +465,22 @@ double pstdnorm(double x);
 
 /**
  * Adjust p-values with Benjamini/Hochberg
+ * Benjamini/Hochberg法とは、p値の調整方法の一つです。
+ * 統計的検定を行う際に、p値が検定によって得られます。
+ * このp値は、仮説が正しい場合に観測される結果がどの程度稀であるかを示します。
+ * しかし、複数の検定を同時に行う場合、p値が本来よりも小さくなってしまうことがあります。
+ * そのような場合、Benjamini/Hochberg法を使うことで、p値を調整することができます。
+ * この方法を使うことで、複数の検定を同時に行った場合にも、本来の意味を持つp値を求めることができます。
  * @param unadjusted_pvalues Unadjusted p-values (input)
  * @param adjusted_pvalues Adjusted p-values (result)
  */
 std::vector<double> adjustPvalues(std::vector<double>& unadjusted_pvalues);
+
+//p値とは、統計的検定で使われる値のことを指します。
+// p値は、仮説が正しい場合に観測される結果がどの程度稀であるかを示します。
+// 例えば、ある群集から標本を抽出し、その標本の平均値が群集の平均値と等しいかどうかを検定する場合、
+// p値は、標本の平均値が群集の平均値よりも大きい場合に、その結果が起きる確率を示します。
+// p値が小さいほど、仮説が正しい可能性が高く、逆にp値が大きいほど、仮説が正しい可能性が低くなります。
 
 /**
  * Get indices of sorted values

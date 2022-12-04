@@ -33,7 +33,7 @@ public:
   //https://monozukuri-c.com/langcpp-copyconstructor/
   Data& operator=(const Data&) = delete;
 
-
+  //Virtualは仮想関数。
   virtual ~Data() = default;
 
   //Virtualは仮想関数。
@@ -42,6 +42,8 @@ public:
   virtual double get_x(size_t row, size_t col) const = 0;
   virtual double get_y(size_t row, size_t col) const = 0;
 
+  //size_tは実行環境によって変わる。32bit、64bitの符号なし整数
+  //https://runebook.dev/ja/docs/cpp/types/size_t
   size_t getVariableID(const std::string& variable_name) const;
 
   virtual void reserveMemory(size_t y_cols) = 0;
@@ -65,6 +67,7 @@ public:
 
   size_t getIndex(size_t row, size_t col) const {
     // Use permuted data for corrected impurity importance
+    //修正された不純物の重要性のために並べ替えられたデータを使用する
     size_t col_permuted = col;
     if (col >= num_cols) {
       col = getUnpermutedVarID(col);
