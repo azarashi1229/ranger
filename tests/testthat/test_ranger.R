@@ -2,17 +2,24 @@ library(ranger)
 library(survival)
 context("ranger")
 
+# 行列インターフェースは確率推定のために機能します
+# Matrix interfaceを使用することで、C++で確率推定を行うこと
 test_that("Matrix interface works for Probability estimation", {
   rf <- ranger(dependent.variable.name = "Species", data = data.matrix(iris), write.forest = TRUE, probability = TRUE)
   expect_equal(rf$treetype, "Probability estimation")
   expect_equal(rf$forest$independent.variable.names, colnames(iris)[1:4])
 })
-
+# 行列界面予測は確率推定に機能します
+# Matrix interfaceを使用して行列Aから全ての要素の和を計算し、その値を行列Aのサイズで割り、確率推定を行っています。
+# このように、Matrix interfaceを使用することで、確率推定が行えるようになります。
 test_that("Matrix interface prediction works for Probability estimation", {
   dat <- data.matrix(iris)
   rf <- ranger(dependent.variable.name = "Species", data = dat, write.forest = TRUE, probability = TRUE)
   expect_silent(predict(rf, dat))
 })
+
+# R言語において、data.frameに2つのクラスが含まれる場合に、特に警告が出ることはありません。R言語では、data.frameのクラスは複数指定できます。例えば、以下のようなコードを書くことができます。
+
 
 test_that("no warning if data.frame has two classes", {
   dat <- iris
@@ -20,67 +27,79 @@ test_that("no warning if data.frame has two classes", {
   expect_silent(ranger(Species ~ ., data = dat))
 })
 
+# サンプル分数が 0 または >1 の場合のエラー
+#
 test_that("Error if sample fraction is 0 or >1", {
   expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = 0))
   expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = 1.1))
 })
 
+# サンプル分数が回帰のベクトルである場合のエラー
 test_that("Error if sample fraction is vector for regression", {
-  expect_error(ranger(Sepal.Length ~ ., iris, num.trees = 5, sample.fraction = c(0.1, 0.2)), 
+  expect_error(ranger(Sepal.Length ~ ., iris, num.trees = 5, sample.fraction = c(0.1, 0.2)),
                "Error: Invalid value for sample\\.fraction\\. Vector values only valid for classification forests\\.")
 })
 
+# サンプル分数が間違ったサイズのベクトルである場合のエラー
 test_that("Error if sample fraction is vector of wrong size", {
-  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.1, 0.2)), 
+  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.1, 0.2)),
                "Error: Invalid value for sample\\.fraction\\. Expecting 3 values, provided 2\\.")
 })
 
+# サンプル分数ベクトルの要素が <0 または >1 の場合のエラー
+# 「分数ベクトル」とは、整数値からなるベクトル
 test_that("Error if element of sample fraction vector is <0 or >1", {
-  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.1, 1.1, 0.3)), 
+  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.1, 1.1, 0.3)),
                "Error: Invalid value for sample\\.fraction. Please give a value in \\(0,1\\] or a vector of values in \\[0,1\\]\\.")
-  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(-3, 0.5, 0.3)), 
+  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(-3, 0.5, 0.3)),
                "Error: Invalid value for sample.fraction. Please give a value in \\(0,1] or a vector of values in \\[0,1\\]\\.")
 })
 
+# サンプル分数ベクトルの合計が 0 の場合のエラー
 test_that("Error if sum of sample fraction vector is 0", {
-  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0, 0, 0)), 
+  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0, 0, 0)),
                "Error: Invalid value for sample\\.fraction. Sum of values must be >0\\.")
 })
 
+# replace=FALSE でサンプルが不十分な場合のエラー
 test_that("Error if replace=FALSE and not enough samples", {
-  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.2, 0.3, 0.4), 
-                      replace = FALSE, keep.inbag = TRUE), 
+  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.2, 0.3, 0.4),
+                      replace = FALSE, keep.inbag = TRUE),
                "Error: Not enough samples in class virginica; available: 50, requested: 60.")
-  expect_silent(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.2, 0.3, 0.4), 
+  expect_silent(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.2, 0.3, 0.4),
                        replace = TRUE, keep.inbag = TRUE))
 })
 
+# sample.fraction と case.weights の場合のエラー
 test_that("Error if sample.fraction and case.weights", {
-  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.2, 0.3, 0.4), 
-                      case.weights = rbinom(nrow(iris), 1, 0.5)), 
+  expect_error(ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.2, 0.3, 0.4),
+                      case.weights = rbinom(nrow(iris), 1, 0.5)),
                "Error: Combination of case\\.weights and class-wise sampling not supported\\.")
 })
-
+# インバッグ数はサンプルの分数と一致し、分類
+# R言語において、「Inbagカウントがサンプルの割合と一致する」とは、
+# 分類分析を行う際に、Inbagカウント（決定木を作成する際に使用されるデータの数）が、
+# サンプルの割合（サンプル数をトータルのデータ数で割ったもの）と一致していることを指します。
 test_that("Inbag counts match sample fraction, classification", {
   ## With replacement
-  rf <- ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.2, 0.3, 0.4), 
+  rf <- ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.2, 0.3, 0.4),
                replace = TRUE, keep.inbag = TRUE)
   inbag <- do.call(cbind, rf$inbag.counts)
   expect_equal(unique(colSums(inbag[iris$Species == "setosa", ])), 30)
   expect_equal(unique(colSums(inbag[iris$Species == "versicolor", ])), 45)
   expect_equal(unique(colSums(inbag[iris$Species == "virginica", ])), 60)
-  
+
   ## Without replacement
-  rf <- ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.1, 0.2, 0.3), 
+  rf <- ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.1, 0.2, 0.3),
                replace = FALSE, keep.inbag = TRUE)
   inbag <- do.call(cbind, rf$inbag.counts)
   expect_equal(unique(colSums(inbag[iris$Species == "setosa", ])), 15)
   expect_equal(unique(colSums(inbag[iris$Species == "versicolor", ])), 30)
   expect_equal(unique(colSums(inbag[iris$Species == "virginica", ])), 45)
-  
+
   ## Different order, without replacement
   dat <- iris[c(51:100, 101:150, 1:50), ]
-  rf <- ranger(Species ~ ., dat, num.trees = 5, sample.fraction = c(0.1, 0.2, 0.3), 
+  rf <- ranger(Species ~ ., dat, num.trees = 5, sample.fraction = c(0.1, 0.2, 0.3),
                replace = FALSE, keep.inbag = TRUE)
   inbag <- do.call(cbind, rf$inbag.counts)
   expect_equal(unique(colSums(inbag[dat$Species == "setosa", ])), 15)
@@ -88,17 +107,21 @@ test_that("Inbag counts match sample fraction, classification", {
   expect_equal(unique(colSums(inbag[dat$Species == "virginica", ])), 45)
 })
 
+# Inbag カウントは、サンプルの割合、確率と一致します
+# R言語において、「Inbagカウントがサンプルの割合と一致する」とは、
+# 確率推定を行う際に、Inbagカウント（決定木を作成する際に使用されるデータの数）が、
+# サンプルの割合（サンプル数をトータルのデータ数で割ったもの）と一致していることを指します。
 test_that("Inbag counts match sample fraction, probability", {
   ## With replacement
-  rf <- ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.2, 0.3, 0.4), 
+  rf <- ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.2, 0.3, 0.4),
                replace = TRUE, keep.inbag = TRUE, probability = TRUE)
   inbag <- do.call(cbind, rf$inbag.counts)
   expect_equal(unique(colSums(inbag[1:50, ])), 30)
   expect_equal(unique(colSums(inbag[51:100, ])), 45)
   expect_equal(unique(colSums(inbag[101:150, ])), 60)
-  
+
   ## Without replacement
-  rf <- ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.1, 0.2, 0.3), 
+  rf <- ranger(Species ~ ., iris, num.trees = 5, sample.fraction = c(0.1, 0.2, 0.3),
                replace = FALSE, keep.inbag = TRUE, probability = TRUE)
   inbag <- do.call(cbind, rf$inbag.counts)
   expect_equal(unique(colSums(inbag[1:50, ])), 15)
@@ -106,12 +129,18 @@ test_that("Inbag counts match sample fraction, probability", {
   expect_equal(unique(colSums(inbag[101:150, ])), 45)
 })
 
+# 式の as.factor() は機能します
+# 特定の変数をカテゴリ型の変数に変換するために
 test_that("as.factor() in formula works", {
   n <- 20
   dt <- data.frame(x = runif(n), y = rbinom(n, 1, 0.5))
   expect_silent(ranger(as.factor(y) ~ ., data = dt, num.trees = 5, write.forest = TRUE))
 })
 
+# 重み 0 でデータを保持するホールドアウト モード
+# 「ホールドアウトモードで重みが0のデータをホールドアウトする」とは、
+# 分類分析や回帰分析を行う際に、ホールドアウト法（訓練データとテストデータを分ける方法）を用いて、
+# 重みが0のデータをホールドアウト（テストデータとして分離）することを指します
 test_that("holdout mode holding out data with 0 weight", {
   weights <- rbinom(nrow(iris), 1, 0.5)
   rf <- ranger(Species ~ ., iris, num.trees = 5, importance = "permutation",  
