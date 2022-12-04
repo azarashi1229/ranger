@@ -28,6 +28,27 @@ http://www.imbs-luebeck.de
 #ifndef DATARCPP_H_
 #define DATARCPP_H_
 
+
+//Rcppは、R言語とC++言語を統合するためのライブラリです。Rcppを使用することで、R言語で書かれたプログラムの一部をC++言語で書き換えることができます。これにより、R言語で書かれたプログラムの処理速度が向上するとともに、C++言語の高い操作性を活用することができます。
+//
+//Rcppを使用するには、まずRcppパッケージをR言語のライブラリとして読み込む必要があります。次に、C++言語のコードをR言語のプログラム内に埋め込み、Rcppを使用してC++言語のコードを実行することができます。
+//
+//例えば、Rcppを使用して、R言語で書かれたプログラムの一部をC++言語で書き換える場合は、以下のようにして行うことができます。
+//# Rcppパッケージを読み込む
+//library(Rcpp)
+//
+//# C++言語のコードをR言語のプログラム内に埋め込む
+//cppFunction('
+//    // C++言語で書かれた関数を定義する
+//    int add(int x, int y) {
+//        // xとyを足し合わせた値を返す
+//        return x + y;
+//    }
+//')
+//
+//# C++言語で書かれた関数を呼び出す
+//add(1, 2)  # 出力: 3
+//上記の例では、C++言語で書かれたadd()関数をR言語のプログラム内に埋め込み、R言語から呼び出して実行しています。
 #include <Rcpp.h>
 
 #include "globals.h"
@@ -35,6 +56,13 @@ http://www.imbs-luebeck.de
 #include "Data.h"
 
 namespace ranger {
+
+//NumericMatrix
+//NumericMatrixは、R言語で用いられる数値行列を表すクラスです。NumericMatrixを使用することで、行列の要素に対して効率的な操作を行うことができます。
+//
+//NumericMatrixを使用するには、まずRcppパッケージをR言語のライブラリとして読み込む必要があります。次に、NumericMatrixクラスを用いて数値行列を作成し、その行列に対して操作を行うことができます。
+//
+//例えば、NumericMatrixを使用して、行列の要素の和を求める場合は、以下のようにして行うことができます。
 
 class DataRcpp: public Data {
 public:
@@ -50,7 +78,8 @@ public:
   
   DataRcpp(const DataRcpp&) = delete;
   DataRcpp& operator=(const DataRcpp&) = delete;
-  
+
+  //~はデストラクタ
   virtual ~DataRcpp() override = default;
   
   double get_x(size_t row, size_t col) const override {

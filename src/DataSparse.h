@@ -34,6 +34,9 @@
 #include "utility.h"
 #include "Data.h"
 
+//RcppEigen.hは、RcppとEigenという2つのC++ライブラリを組み合わせるためのヘッダファイルです。Rcppは、C++を用いてR言語のプログラムを書くためのライブラリです。Eigenは、C++で数値計算を行うためのライブラリです。
+//
+//RcppEigen.hを使用することで、RcppとEigenという2つのライブラリを組み合わせることができます。これにより、R言語のプログラムでEigenを用いた数値計算が行えるようになります。
 namespace ranger {
 
 class DataSparse: public Data {
@@ -43,6 +46,7 @@ public:
   DataSparse(Eigen::SparseMatrix<double>& x, Rcpp::NumericMatrix& y, std::vector<std::string> variable_names, size_t num_rows,
       size_t num_cols);
 
+  //&は参照を表す文法
   DataSparse(const DataSparse&) = delete;
   DataSparse& operator=(const DataSparse&) = delete;
 
