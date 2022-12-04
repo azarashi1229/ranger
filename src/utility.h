@@ -35,7 +35,14 @@ namespace ranger {
 
 /**
  * Split sequence start..end in num_parts parts with sizes as equal as possible.
- * シーケンスの start..end を num_parts 個の部分に分割し、サイズをできるだけ等しくします。
+ * シーケンスの start..end を num_parts 個の部分に分割し、サイズをできるだけ等しくします
+ * 序列を等分
+ * 序列を等分することには、以下のようなメリットがあります。
+ *
+
+序列を同じ長さの区間に分割することができます。これにより、序列の要素を適切にグループ化したり、分析したりすることができます。
+序列を同じ長さの区間に分割することで、序列を扱いやすくすることができます。例えば、序列を同じ長さの区間に分割することで、同じ長さの要素を一括して扱うことができます。
+序列を等分することで、序列内の要素を均等に分配することができます。これにより、序列内の要素が均等に分配されることで、要素の分析や処理が容。
  * @param result Result vector of size num_parts+1. Ranges for the parts are then result[0]..result[1]-1, result[1]..result[2]-1, ..
  * @param start minimum value
  * @param end maximum value
@@ -166,6 +173,8 @@ void loadDoubleVectorFromFile(std::vector<double>& result, std::string filename)
 /**
  * Draw random numbers in a range without replacements.
  * 置換なしで範囲内の乱数を描画します。
+ *
+ * 範囲を指定して、重複なくランダムな整数を選択する
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param range_length Length of range. Interval to draw from: 0..max-1
@@ -177,6 +186,7 @@ void drawWithoutReplacement(std::vector<size_t>& result, std::mt19937_64& random
 /**
  * Draw random numbers in a range without replacement and skip values.
  * 置換なしで範囲内の乱数を描画し、値をスキップします。
+ *
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param range_length Length of range. Interval to draw from: 0..max-1
@@ -238,6 +248,7 @@ void drawWithoutReplacementFisherYates(std::vector<size_t>& result, std::mt19937
 /**
  * Draw random numers without replacement and with weighted probabilites from 0..n-1.
  * 置換なしで、0..n-1 の加重確率で乱数を描画します。
+ * 重複なしで重み付き確率に従って整数をランダムに選択
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param random_number_generator Random number generator
  * @param max_index Maximum index to draw
@@ -250,6 +261,7 @@ void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64
 /**
  * Draw random numbers of a vector without replacement.
  * 置換なしでベクトルの乱数を描画します。
+ * ベクトルから重複なしでランダムに数字を選択
  * @param result Vector to add results to. Will not be cleaned before filling.
  * @param input Vector to draw values from.
  * @param random_number_generator Random number generator
@@ -273,7 +285,8 @@ void drawWithoutReplacementFromVector(std::vector<T>& result, const std::vector<
 
 /**
  * Returns the most frequent class index of a vector with counts for the classes. Returns a random class if counts are equal.
- * クラスのカウントを持つベクトルの最も頻度の高いクラス インデックスを返します。カウントが等しい場合、ランダム クラスを返します。
+ * クラスのカウントを持つベクトルの最も頻度の高いクラス インデックスを返します。
+ * カウントが等しい場合、ランダム クラスを返します。
  * @param class_count Vector with class counts
  * @param random_number_generator Random number generator
  * @return Most frequent class index. Out of range index if all 0.
@@ -322,6 +335,28 @@ double mostFrequentValue(const std::unordered_map<double, size_t>& class_count,
  * https://necostat.hatenablog.jp/entry/2022/07/06/080239
  * https://ai-trend.jp/basic-study/survival-data-analysis/survival-function/
  * https://clover.fcg.world/2016/07/24/6112/
+ * コンコーダンス指数は、生存時間データから、各観測期間における全生存率を推定する手法の一つです。各観測期間における全生存率は、累積ハザード関数またはその推定値によって表されます。コンコーダンス指数は、この累積ハザード関数またはその推定値を用いて、生存時間データから計算されます。
+
+コンコーダンス指数を計算するには、以下の手順を実行します。
+
+生存時間データを収集します。このデータは、各患者の観測期間を表すものである必要があります。
+累積ハザード関数またはその推定値を収集します。この値は、各観測期間における全生存率を表すものである必要があります。
+生存時間データと累積ハザード関数またはその推定値を用いて、各観測期間におけるコンコーダンス指数を計算します。この値は、次の式で表されます。
+$$
+C_i = \frac{1}{n_i} \sum_{j=1}^{n_i} \mathbb{I} { T_{ij} \leq T_i }
+$$
+
+この式で、$C_i$は観測期間$i$におけるコンコーダンス指数、$n_i$は観測期間$i$における患者数、$T_{ij}$は患者$j$の観
+給与されたデータと累積ハザード関数/推定値から共通インデックスを計算するには、以下のようにして行うことができます。
+
+詳細な手順は以下の通りです。
+
+累積ハザード関数/推定値を計算する。
+各サンプルについて、累積ハザード関数/推定値を計算する。
+各サンプルの結果が累積ハザード関数/推定値より大きいものと小さいものを分ける。
+同一結果のサンプル同士がある場合、その組を除外する。
+各サンプルの組について、正しい方向と違う方向があるかどうかを判定し、その数を数える。
+正しい方向と違う方向の数を全体の組の数で
  * @param data Reference to Data object
  * @param sum_chf Summed chf over timepoints for each sample
  * @param sample_IDs IDs of samples, for example OOB samples
@@ -399,6 +434,7 @@ void shuffleAndSplitAppend(std::vector<size_t>& first_part, std::vector<size_t>&
 /**
  * Check if not too many factor levels and all values in unordered categorical variables are positive integers.
  * 因子水準が多すぎず、順序付けされていないカテゴリ変数のすべての値が正の整数であるかどうかを確認します。
+ 分類変数が多すぎるかどうかと、順序のない分類変数内の値が全て正の整数かどうかを確認するには、以下のようにして行うことができます。
  * @param data Reference to data object
  * @param unordered_variable_names Names of unordered variables
  * @return Error message, empty if no problem occured
@@ -417,6 +453,14 @@ bool checkPositiveIntegers(const std::vector<double>& all_values);
  * Compute p-value for maximally selected rank statistics using Lau92 approximation
  * Lau92 近似を使用して、最大に選択されたランク統計の p 値を計算します
  * See Lausen, B. & Schumacher, M. (1992). Biometrics 48, 73-85.
+ * Lau92近似値を使用した最大選択ランク統計に対するp値を計算するには、以下のようにして行うことができます。
+
+詳細な手順は以下の通りです。
+
+Lau92近似値を使用した最大選択ランク統計のp値計算式を定義する。
+最大選択ランク統計の値を計算する。
+最大選択ランク統計の値を用いて、p値計算式を使用してp値を計算する。
+例えば、Pythonでは以下のようにして行うことができます。
  * @param b Quantile
  * @param minprop Minimal proportion of observations left of cutpoint
  * @param maxprop Maximal proportion of observations left of cutpoint
@@ -442,6 +486,13 @@ double maxstatPValueLau94(double b, double minprop, double maxprop, size_t N, co
  * ランク統計の未調整の p 値を計算する
  * ログランク？
  * https://ja.wikipedia.org/wiki/%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%B3%E3%82%AF%E6%A4%9C%E5%AE%9A
+ * ランク統計に対する未調整p値を計算するには、以下のようにして行うことができます。
+
+詳細な手順は以下の通りです。
+
+ランク統計の値を計算する。
+サンプル数を算出する。
+ランク統計の値を用いて、未調整p値を計算する。
  * @param b Quantile
  * @return p-value for quantile b
  */
@@ -450,6 +501,17 @@ double maxstatPValueUnadjusted(double b);
 /**
  * Standard normal density
  * 標準正規分布の密度関数
+ *
+ *
+ * 標準正規分布の密度は、正規分布の密度を標準化したものです。標準正規分布の密度は、次の式で表されます。
+
+$$f(x)=\frac{1}{\sqrt{2\pi}}e^{-\frac{x^2}{2}}$$
+
+ここで、$x$は標準正規分布に従う確率変数の値を表します。標準正規分布の密度の値は、常に正の値となります。
+
+標準正規分布の密度が高い範囲は、標準正規分布に従う確率変数の値が集中している範囲を表します。つまり、標準正規分布の密度の値が大きい範囲は、標準正規分布に従う確率変数が集中する範囲となります。逆に、標準正規分布の密度の値が小さい範囲は、標準正規分布に従う確率変数が集中しない範囲となります。
+
+標準正規分布の密度を計算するには、上記の式を用います。例えば、Pythonでは以下のようにして行うことができます。
  * @param x Quantile
  * @return Standard normal density at quantile x
  */
@@ -458,6 +520,18 @@ double dstdnorm(double x);
 /**
  * Standard normal distribution
  * 標準正規分布
+ *
+ * 標準正規分布とは、平均が0で分散が1の正規分布のことです。標準正規分布は、次の式で表されます。
+
+$$f(x)=\frac{1}{\sqrt{2\pi}}e^{-\frac{x^2}{2}}$$
+
+ここで、$x$は標準正規分布に従う確率変数の値を表します。標準正規分布の値は、常に正の値となります。
+
+標準正規分布は、多くの統計学的推定や検定に使用されます。標準正規分布を使用することで、様々な統計的処理が簡単に行えるようになります。また、標準正規分布は平均と分散が既知であるため、確率変数の値が集中する範囲を予測することができます。
+
+標準正規分布を計算するには、上記の式を用います。例えば、Pythonでは以下のようにして行うことができます。
+ *
+ *
  * @param x Quantile
  * @return Standard normal distribution at quantile x
  */
