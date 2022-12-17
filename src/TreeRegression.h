@@ -94,8 +94,7 @@ private:
     sums.shrink_to_fit();
   }
 
-  std::vector<size_t> counter;
-  std::vector<double> sums;
+
 };
 
 } // namespace ranger

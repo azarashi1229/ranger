@@ -207,6 +207,9 @@ void drawWithoutReplacementSkip(std::vector<size_t>& result, std::mt19937_64& ra
 void drawWithoutReplacementSimple(std::vector<size_t>& result, std::mt19937_64& random_number_generator, size_t max,
     size_t num_samples);
 
+//サンプルが100子あった時に90ことる
+//その取り方
+//重複あり、なし
 /**
  * Simple algorithm for sampling without replacement (skip values), faster for smaller num_samples
  * 置換なしのサンプリングのための単純なアルゴリズム (値をスキップ)、num_samples が小さいほど高速
@@ -724,6 +727,9 @@ $$
  * @param phi Phi
  * @return Log-likelihood
  */
+//確率を返したい。
+//β関数 0~1
+//ユード関数、
 double betaLogLik(double y, double mean, double phi);
 
 // User interrupt from R

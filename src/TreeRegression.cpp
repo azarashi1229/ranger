@@ -19,6 +19,14 @@
 #include "TreeRegression.h"
 #include "Data.h"
 
+
+//grfは最終的にnodeの重みを返す形になる。
+
+
+//特徴2つ
+// どこで分割するのか。サンプリングするのに、どこで 1,2,5,8だったとしても
+//　X1-XP
+
 namespace ranger {
 
 TreeRegression::TreeRegression(std::vector<std::vector<size_t>>& child_nodeIDs, std::vector<size_t>& split_varIDs,
@@ -41,6 +49,7 @@ void TreeRegression::allocateMemory() {
   }
 }
 
+//nodeIDはnodeのIDを与えると、
 double TreeRegression::estimate(size_t nodeID) {
 
   // Mean of responses of samples in node
@@ -50,6 +59,8 @@ double TreeRegression::estimate(size_t nodeID) {
     size_t sampleID = sampleIDs[pos];
     sum_responses_in_node += data->get_y(sampleID, 0);
   }
+  // nodeの予測値を返す
+  // Y /
   return (sum_responses_in_node / (double) num_samples_in_node);
 }
 
@@ -93,6 +104,7 @@ bool TreeRegression::splitNodeInternal(size_t nodeID, std::vector<size_t>& possi
   } else if (splitrule == BETA) {
     stop = findBestSplitBeta(nodeID, possible_split_varIDs);
   } else {
+      //一旦はここのsplitとかを読む
     stop = findBestSplit(nodeID, possible_split_varIDs);
   }
 
@@ -148,6 +160,7 @@ bool TreeRegression::findBestSplit(size_t nodeID, std::vector<size_t>& possible_
     if (data->isOrderedVariable(varID)) {
 
       // Use memory saving method if option set
+      // メモリ
       if (memory_saving_splitting) {
         findBestSplitValueSmallQ(nodeID, varID, sum_node, num_samples_node, best_value, best_varID, best_decrease);
       } else {
@@ -788,6 +801,8 @@ void TreeRegression::findBestSplitValueBeta(size_t nodeID, size_t varID, double 
   }
 }
 
+//おそらく
+// 2つに分けた時に、βのログライクフックなものを返したい
 void TreeRegression::findBestSplitValueBeta(size_t nodeID, size_t varID, double sum_node, size_t num_samples_node,
     double& best_value, size_t& best_varID, double& best_decrease, std::vector<double> possible_split_values,
     std::vector<double>& sums_right, std::vector<size_t>& n_right) {

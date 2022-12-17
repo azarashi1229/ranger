@@ -219,6 +219,8 @@ protected:
   bool sample_with_replacement;
   const std::vector<double>* sample_fraction;
 
+  //サンプルが1万個ある時 9999この分割ポイント
+  //それを間引くためにやるかもしれない。
   bool memory_saving_splitting;
   SplitRule splitrule;
   double alpha;
